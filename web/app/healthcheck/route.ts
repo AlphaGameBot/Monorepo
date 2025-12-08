@@ -94,8 +94,24 @@ export async function GET() {
         data.components.push({ name: "database", status: "error", error: (error as Error).message });
     }
 
+    // We use 503 Service Unavailable for any failing component
+    if (process.env.NODE_ENV === "production") {
+        const fmtStatus = data.status.toUpperCase();
+        let fmtMsg = `${fmtStatus}`;
+        if (process.env.GIT_SHA) fmtMsg += ` [GIT_SHA=${process.env.GIT_SHA}]`;
+        if (process.env.VERSION) fmtMsg += ` [VERSION=${process.env.VERSION}]`;
+        
+        return new Response(fmtMsg, {
+            status: data.status === "ok" ? 200 : 503,
+            headers: {
+                "Content-Type": "text/html"
+            }
+        });
+    }
+    
+    // development only
     return new Response(JSON.stringify(data), {
-        status: 200,
+        status: data.status === "ok" ? 200 : 503,
         headers: {
             "Content-Type": "application/json"
         }
