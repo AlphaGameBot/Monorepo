@@ -14,6 +14,14 @@ COPY tsconfig.json tsconfig.base.json
 COPY web/tsconfig.json tsconfig.json
 RUN sed -i 's|"extends": *"[^"]*"|"extends": "./tsconfig.base.json"|' tsconfig.json
 
+ARG VERSION
+ARG GIT_SHA
+ARG BUILD_TIMESTAMP
+
+ENV NEXT_PUBLIC_VERSION=$VERSION
+ENV NEXT_PUBLIC_GIT_SHA=$GIT_SHA
+ENV NEXT_PUBLIC_BUILD_TIMESTAMP=$BUILD_TIMESTAMP
+
 COPY package.json /tmp/package.root.json
 COPY bot/package.json /tmp/package.bot.json
 COPY web/package.json /tmp/package.web.json
@@ -25,7 +33,7 @@ WORKDIR /app
 RUN apt-get update -y && \
   apt-get install -y openssl curl --no-install-recommends && \
   rm -rf /var/lib/apt/lists/*
-  
+
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
@@ -47,11 +55,11 @@ HEALTHCHECK \
   --start-period=20s \
   --retries=3 \
   CMD curl --fail --fail-with-body \
-    --connect-timeout 2 \
-    --max-time 5 \
-    -H "User-Agent: AlphaGameBot-Healthcheck/$VERSION" \
-    -H "X-AGB-Version: $VERSION" \
-    -H "X-AGB-GitSHA: $GIT_SHA" \
-    http://localhost:3000/healthcheck || exit 1
-    
+  --connect-timeout 2 \
+  --max-time 5 \
+  -H "User-Agent: AlphaGameBot-Healthcheck/$VERSION" \
+  -H "X-AGB-Version: $VERSION" \
+  -H "X-AGB-GitSHA: $GIT_SHA" \
+  http://localhost:3000/healthcheck || exit 1
+
 CMD ["npx", "next", "start", "-p", "3000"]
