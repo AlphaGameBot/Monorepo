@@ -29,16 +29,21 @@ RUN node scripts/generate-humans.js /tmp/package.web.json /tmp/package.bot.json 
 RUN SKIP_HUMANS_GENERATION=true npm run build
 
 FROM node:20-bookworm-slim AS runner
-WORKDIR /app
 RUN apt-get update -y && \
   apt-get install -y openssl curl --no-install-recommends && \
   rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+RUN adduser alphagamebot
+USER alphagamebot
+
+WORKDIR /app
+
+RUN chown -R alphagamebot:alphagamebot /app
+COPY --from=builder --chown=alphagamebot:alphagamebot /app/package.json ./package.json
+COPY --from=builder --chown=alphagamebot:alphagamebot /app/node_modules ./node_modules
+COPY --from=builder --chown=alphagamebot:alphagamebot /app/prisma ./prisma
+COPY --from=builder --chown=alphagamebot:alphagamebot /app/.next ./.next
+COPY --from=builder --chown=alphagamebot:alphagamebot /app/public ./public
 
 EXPOSE 3000
 ENV NODE_ENV=production
