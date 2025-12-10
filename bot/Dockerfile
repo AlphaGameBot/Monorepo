@@ -33,16 +33,23 @@ RUN npm run build
 
 # RUN find . -path '*/node_modules' -prune -o -name 'client.d.ts' -exec dirname {} \; && sleep 70
 FROM node:20-alpine
+
+RUN adduser -D alphagamebot
+USER alphagamebot
+
 WORKDIR /app
-ENV NODE_ENV=production
+RUN chown -R alphagamebot:alphagamebot /app
+
 ARG VERSION
+ENV NODE_ENV=production
 ENV VERSION=$VERSION
-COPY bot/assets ./assets
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/prisma ./prisma
+
+COPY --chown=alphagamebot:alphagamebot bot/assets ./assets
+COPY --from=build --chown=alphagamebot:alphagamebot /app/package*.json ./
+COPY --from=build --chown=alphagamebot:alphagamebot /app/prisma ./prisma
 RUN --mount=type=cache,target=/root/.npm \
     npm install --omit=dev
-COPY --from=build /app/dist ./dist
+COPY --from=build --chown=alphagamebot:alphagamebot /app/dist ./dist
 
 # Metrics HTTP server
 EXPOSE 9100
