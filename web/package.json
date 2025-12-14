@@ -40,7 +40,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.2",
     "next-sitemap": "^4.2.3",
+    "node-loader": "^2.1.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "zlib-sync": "^0.1.10"
   }
 }

@@ -23,7 +23,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { User } from "discord.js";
 
-export default function WebAppLayout({
+export default function appLayout({
     children,
 }: {
     children: React.ReactNode;
@@ -108,15 +108,15 @@ export default function WebAppLayout({
                     <ul className="space-y-2">
                         <li>
                             <Link
-                                href="/webapp"
+                                href="/app"
                                 className={`block px-4 py-2 rounded transition ${
-                                    pathname === '/webapp' 
+                                    pathname === '/app' 
                                         ? 'font-medium' 
                                         : ''
                                 }`}
                                 style={{
-                                    background: pathname === '/webapp' ? 'var(--primary-500)' : 'transparent',
-                                    color: pathname === '/webapp' ? 'white' : 'var(--text-default)',
+                                    background: pathname === '/app/guilds' ? 'var(--primary-500)' : 'transparent',
+                                    color: pathname === '/app/guilds' ? 'white' : 'var(--text-default)',
                                 }}
                             >
                                 Servers

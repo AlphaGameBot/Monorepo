@@ -16,24 +16,9 @@
 //     You should have received a copy of the GNU General Public License
 //     along with AlphaGameBot.  If not, see <https://www.gnu.org/licenses/>.
 
-import { getSortedPostsData } from '../../lib/posts';
-import BlogPostsList from './components/BlogPostsList';
-
-export default function BlogPage() {
-    const posts = getSortedPostsData();
-
-    return (
-        <main className="container py-12">
-            {/* Header Section */}
-            <div className="mb-12">
-                <h1 className="mb-4 text-5xl pb-5 font-bold gradient-text">Blog</h1>
-                <p className="text-xl text-text-muted max-w-2xl">
-                    Explore our latest articles, tutorials, and updates from the AlphaGameBot team.
-                </p>
-            </div>
-
-            {/* Blog Posts List with Controls */}
-            <BlogPostsList posts={posts} />
-        </main>
-    );
+export default function WebAppRoot() {
+    return <>
+        <h1 className="text-4xl font-bold">Howdy, there!</h1>
+        <p className="mt-4 text-lg">Welcome to the AlphaGameBot Web App. More features coming soon!</p>
+    </>;
 }

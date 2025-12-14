@@ -16,24 +16,19 @@
 //     You should have received a copy of the GNU General Public License
 //     along with AlphaGameBot.  If not, see <https://www.gnu.org/licenses/>.
 
-import { getSortedPostsData } from '../../lib/posts';
-import BlogPostsList from './components/BlogPostsList';
+"use server";
 
-export default function BlogPage() {
-    const posts = getSortedPostsData();
+import type { Session } from '@prisma/client';
+import { REST } from 'discord.js';
+import client from './database';
 
-    return (
-        <main className="container py-12">
-            {/* Header Section */}
-            <div className="mb-12">
-                <h1 className="mb-4 text-5xl pb-5 font-bold gradient-text">Blog</h1>
-                <p className="text-xl text-text-muted max-w-2xl">
-                    Explore our latest articles, tutorials, and updates from the AlphaGameBot team.
-                </p>
-            </div>
+export async function createDiscordRestClient(session: Session): Promise<REST> {
+    if (!session || !session.access_token) {
+        throw new Error('Invalid session');
+    } else if (new Date(session.expires_at) < new Date()) {
+        await client.session.deleteMany({ where: { id: session.id } });
+        throw new Error('Session expired');
+    }
 
-            {/* Blog Posts List with Controls */}
-            <BlogPostsList posts={posts} />
-        </main>
-    );
+    return new REST({ version: '10', authPrefix: 'Bearer' }).setToken(session.access_token);
 }

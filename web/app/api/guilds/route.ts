@@ -16,9 +16,11 @@
 //     You should have received a copy of the GNU General Public License
 //     along with AlphaGameBot.  If not, see <https://www.gnu.org/licenses/>.
 
-import { hashToken } from '@/app/lib/session';
-import { NextRequest, NextResponse } from 'next/server';
 import db from '@/app/lib/database';
+import { createDiscordRestClient } from '@/app/lib/rest';
+import { getSessionFromRequest } from '@/app/lib/sessionHelpers';
+import { Routes } from 'discord.js';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface DiscordGuild {
     id: string;
@@ -29,52 +31,30 @@ interface DiscordGuild {
 }
 
 export async function GET(req: NextRequest) {
-    const cookie = req.headers.get('cookie') || '';
-    const match = cookie.split(';').map(s => s.trim()).find(s => s.startsWith('agb_session='));
-    if (!match) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    const session = await getSessionFromRequest(req);
+    if (!session) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
     try {
-        const raw = match.replace('agb_session=', '');
-        const hashed = hashToken(raw);
-        const session = await db.session.findFirst({ where: { hashedId: hashed } });
-        
-        if (!session || !session.access_token) {
-            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-        }
-        
-        if (new Date(session.expires_at) < new Date()) {
-            await db.session.deleteMany({ where: { hashedId: hashed } });
-            return NextResponse.json({ error: 'Session expired' }, { status: 401 });
-        }
+        const rest = await createDiscordRestClient(session);
 
-        // Fetch guilds from Discord API
-        const res = await fetch('https://discord.com/api/users/@me/guilds', {
-            headers: { Authorization: `Bearer ${session.access_token}` }
-        });
+        // Fetch guilds from Discord API using discord.js REST helper
+        const guilds = await rest.get(Routes.userGuilds()) as unknown as DiscordGuild[];
 
-        if (!res.ok) {
-            return NextResponse.json({ error: 'Failed to fetch guilds' }, { status: res.status });
-        }
-
-        const guilds = await res.json() as DiscordGuild[];
-
-        // Filter guilds where user has administrator permission
-        // Discord permission bit for ADMINISTRATOR is 0x8
+        // Filter guilds where user has administrator permission (0x8) or is owner
         const adminGuilds = guilds.filter(guild => {
             const permissions = BigInt(guild.permissions);
-            return (permissions & BigInt(0x8)) === BigInt(0x8) || guild.owner;
+            const hasAdminPermissions = (permissions & BigInt(0x8)) === BigInt(0x8);
+            return hasAdminPermissions || guild.owner;
         });
 
-        // Check which guilds have AlphaGameBot
+        // Check which guilds have AlphaGameBot in the DB
         const guildIds = adminGuilds.map(g => g.id);
         const botGuilds = await db.guild.findMany({
             where: { id: { in: guildIds } },
             select: { id: true, name: true, updated_at: true }
         });
-
         const botGuildIds = new Set(botGuilds.map(g => g.id));
 
-        // Return guilds with bot status
         const guildsWithBotStatus = adminGuilds.map(guild => ({
             id: guild.id,
             name: guild.name,
@@ -83,7 +63,6 @@ export async function GET(req: NextRequest) {
             dbInfo: botGuilds.find(bg => bg.id === guild.id)
         }));
 
-        // Only return guilds that have the bot
         const mutualGuilds = guildsWithBotStatus.filter(g => g.hasBot);
 
         return NextResponse.json({ guilds: mutualGuilds });

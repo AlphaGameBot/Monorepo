@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import InlineLoginStatus from "./InlineLoginStatus";
+import InlineLoginStatus from "../../components/InlineLoginStatus";
 import UserAvatar from "./UserAvatar";
 
 // page header * navbar
