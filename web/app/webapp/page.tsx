@@ -57,7 +57,7 @@ export default function WebAppPage() {
         return (
             <div className="text-center py-12">
                 <div className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4" 
-                     style={{ borderColor: 'var(--primary-500)', borderTopColor: 'transparent' }}></div>
+                    style={{ borderColor: 'var(--primary-500)', borderTopColor: 'transparent' }}></div>
                 <p style={{ color: 'var(--text-muted)' }}>Loading your servers...</p>
             </div>
         );

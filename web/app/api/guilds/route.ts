@@ -18,7 +18,7 @@
 
 import { hashToken } from '@/app/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
-import db from '../../../lib/database';
+import db from '@/app/lib/database';
 
 interface DiscordGuild {
     id: string;
@@ -88,6 +88,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ guilds: mutualGuilds });
     } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error fetching guilds:', error);
         return NextResponse.json({ error: 'Internal error' }, { status: 500 });
     }
