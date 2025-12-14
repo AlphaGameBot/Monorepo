@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
                 hashedId: hashed,
                 user_id: user.id,
                 user_json: user,
+                access_token: token.access_token,
                 expires_at: expires
             }
         });
