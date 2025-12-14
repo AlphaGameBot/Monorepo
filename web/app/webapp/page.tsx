@@ -88,7 +88,7 @@ export default function WebAppPage() {
                     <p className="text-sm mt-2">You don't have any servers where you're an administrator and AlphaGameBot is present.</p>
                     <div className="mt-6">
                         <a
-                            href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot"
+                            href={`https://discord.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID || process.env.DISCORD_CLIENT_ID}&permissions=8&scope=bot`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-block px-6 py-3 rounded font-medium transition"

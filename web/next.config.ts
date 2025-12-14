@@ -13,7 +13,8 @@ const nextConfig: NextConfig = {
     "root": path.join(cwd, "..")
   },
   "env": {
-    "NEXT_PUBLIC_NODE_ENV": process.env.NODE_ENV
+    "NEXT_PUBLIC_NODE_ENV": process.env.NODE_ENV,
+    "NEXT_PUBLIC_DISCORD_CLIENT_ID": process.env.DISCORD_CLIENT_ID
   }
 };
 
