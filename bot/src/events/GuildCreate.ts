@@ -16,7 +16,7 @@
 //     You should have received a copy of the GNU General Public License
 //     along with AlphaGameBot.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Events, type Guild } from "discord.js";
+import { Events, WebhookClient, type Guild } from "discord.js";
 import type { EventHandler } from "../interfaces/Event.js";
 import prisma from "../utility/database.js";
 import { getLogger } from "../utility/logging/logger.js";
@@ -29,7 +29,7 @@ export default {
         logger.info(`Bot joined guild: ${guild.name} (${guild.id})`);
         
         // Ensure the guild exists in the database
-        await prisma.guild.upsert({
+        const result = await prisma.guild.upsert({
             where: { id: guild.id },
             create: { 
                 id: guild.id, 
@@ -41,5 +41,30 @@ export default {
         }).catch((error) => {
             logger.error(`Failed to upsert guild ${guild.id} (${guild.name}):`, error);
         });
+
+        // Was anything changed?
+        // i.e, is created_at and update_at (roughly) the same?
+        if (result) {
+            const createdAt = result.created_at.getTime();
+            const updatedAt = result.updated_at.getTime();
+            const timeDiff = Math.abs(updatedAt - createdAt);
+
+            // If the difference is less than 5 seconds, we consider it a new guild
+            if (timeDiff < 5000) {
+                logger.info(`New guild added to database: ${guild.name} (${guild.id})`);
+                // send discord webhook notification to process.env.EFFOR_WEBHOOK_URL if defined
+                const errorWebhookUrl = process.env.ERROR_WEBHOOK_URL;
+                if (!errorWebhookUrl) return;
+
+                const wh = new WebhookClient({ url: errorWebhookUrl });
+                await wh.send({
+                    content: `:tada: Bot has joined a new guild!\n\n**Guild Name:** ${guild.name}\n**Guild ID:** ${guild.id}\n**Member Count:** ${guild.memberCount}`,
+                }).catch((error) => {
+                    logger.error(`Failed to send guild join webhook for guild ${guild.id} (${guild.name}):`, error);
+                });
+            } else {
+                logger.info(`Existing guild updated in database: ${guild.name} (${guild.id})`);
+            }
+        }
     }
 } as EventHandler<Events.GuildCreate>;
