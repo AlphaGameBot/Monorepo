@@ -11,7 +11,7 @@ const logger = getLogger("api/system-status");
 
 export async function GET() {
     logger.debug("Checking system status");
-    const ok = await client.$executeRaw`SELECT 1`.catch((err) => {
+    const ok = await client.$executeRaw`SELECT 1`.catch((err: unknown) => {
         logger.error("Database health check failed:", err);
         return null;
     });

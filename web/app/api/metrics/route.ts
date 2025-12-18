@@ -8,6 +8,8 @@ import { getLogger } from "@/app/lib/logging/logger";
 
 const logger = getLogger("api/metrics");
 
+export const runtime = 'nodejs';
+
 export async function GET() {
     try {
         logger.debug("Metrics requested");

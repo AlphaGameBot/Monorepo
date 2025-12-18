@@ -22,11 +22,11 @@ const client = new PrismaClient({
 });
 
 // Forward Prisma logs to Winston
-client.$on('warn', (e) => {
+client.$on('warn', (e: { message: string }) => {
     logger.warn(`Prisma: ${e.message}`);
 });
 
-client.$on('error', (e) => {
+client.$on('error', (e: { message: string }) => {
     logger.error(`Prisma: ${e.message}`);
 });
 

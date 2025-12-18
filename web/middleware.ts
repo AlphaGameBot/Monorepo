@@ -18,47 +18,24 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getLogger } from "./app/lib/logging/logger";
-import { Metrics, metricsManager } from "./app/lib/metrics/metrics";
 
-const logger = getLogger("middleware");
+// Note: This middleware uses basic console logging as it runs in the Edge Runtime
+// which doesn't support full Node.js APIs like Winston. Metrics are recorded
+// in the API routes themselves which run in Node.js runtime.
 
 export function middleware(request: NextRequest) {
-    const startTime = performance.now();
     const { pathname, search } = request.nextUrl;
     const method = request.method;
     const fullPath = pathname + search;
 
-    logger.debug(`${method} ${fullPath}`);
-
-    // Continue with the request
-    const response = NextResponse.next();
-
-    // Track metrics after response
-    const durationMs = performance.now() - startTime;
-    const statusCode = response.status;
-
-    // Submit HTTP request metric
-    metricsManager.submitMetric<Metrics.HTTP_REQUEST>(Metrics.HTTP_REQUEST, {
-        method,
-        path: pathname,
-        statusCode,
-        durationMs
-    });
-
-    // Submit API request metric for API routes
-    if (pathname.startsWith("/api/")) {
-        metricsManager.submitMetric<Metrics.API_REQUEST>(Metrics.API_REQUEST, {
-            endpoint: pathname,
-            method,
-            statusCode,
-            durationMs
-        });
+    // Basic console logging for middleware (Edge Runtime compatible)
+    if (process.env.NODE_ENV !== "production") {
+        // eslint-disable-next-line no-console
+        console.log(`[middleware] ${method} ${fullPath}`);
     }
 
-    logger.verbose(`${method} ${fullPath} - ${statusCode} - ${durationMs.toFixed(2)}ms`);
-
-    return response;
+    // Continue with the request
+    return NextResponse.next();
 }
 
 // Configure which paths the middleware should run on

@@ -104,41 +104,44 @@ export class MetricsManager {
 
 export const metricsManager = new MetricsManager();
 
-process.on("unhandledRejection", (reason: unknown) => {
-    // Normalize to an Error-like object
-    const err = reason instanceof Error
-        ? reason
-        : new Error(
-            typeof reason === "string" ? reason
-                : reason === undefined ? "Unhandled rejection: undefined"
-                    : JSON.stringify(reason)
-        );
+// Only register process handlers in Node.js environment (not Edge Runtime)
+if (typeof process !== 'undefined' && process.on) {
+    process.on("unhandledRejection", (reason: unknown) => {
+        // Normalize to an Error-like object
+        const err = reason instanceof Error
+            ? reason
+            : new Error(
+                typeof reason === "string" ? reason
+                    : reason === undefined ? "Unhandled rejection: undefined"
+                        : JSON.stringify(reason)
+            );
 
-    // Prepare a safe serializable payload
-    const payload = {
-        name: err.name,
-        message: err.message,
-        stack: err.stack ? err.stack : undefined
-    };
+        // Prepare a safe serializable payload
+        const payload = {
+            name: err.name,
+            message: err.message,
+            stack: err.stack ? err.stack : undefined
+        };
 
-    // Submit metric (cast to any if MetricDataMap shape doesn't match)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    metricsManager.submitMetric<Metrics.APPLICATION_ERROR>(Metrics.APPLICATION_ERROR, payload as any);
+        // Submit metric (cast to any if MetricDataMap shape doesn't match)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        metricsManager.submitMetric<Metrics.APPLICATION_ERROR>(Metrics.APPLICATION_ERROR, payload as any);
 
-    logger.error("Unhandled rejection caught", err);
-});
+        logger.error("Unhandled rejection caught", err);
+    });
 
-process.on("uncaughtException", (err: Error) => {
-    // Prepare a safe serializable payload
-    const payload = {
-        name: err.name,
-        message: err.message,
-        stack: err.stack ? err.stack : undefined
-    };
+    process.on("uncaughtException", (err: Error) => {
+        // Prepare a safe serializable payload
+        const payload = {
+            name: err.name,
+            message: err.message,
+            stack: err.stack ? err.stack : undefined
+        };
 
-    // Submit metric (cast to any if MetricDataMap shape doesn't match)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    metricsManager.submitMetric<Metrics.APPLICATION_ERROR>(Metrics.APPLICATION_ERROR, payload as any);
+        // Submit metric (cast to any if MetricDataMap shape doesn't match)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        metricsManager.submitMetric<Metrics.APPLICATION_ERROR>(Metrics.APPLICATION_ERROR, payload as any);
 
-    logger.error("Uncaught exception caught", err);
-});
+        logger.error("Uncaught exception caught", err);
+    });
+}

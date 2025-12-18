@@ -45,7 +45,11 @@ export enum LoggerNames {
 }
 
 function shouldWeUseColors(): boolean {
-    return process.stdout.isTTY && !(process.env.NO_COLOR);
+    // Check if we're in a Node.js environment with stdout
+    if (typeof process !== 'undefined' && process.stdout) {
+        return process.stdout.isTTY && !(process.env.NO_COLOR);
+    }
+    return false;
 }
 
 winston.addColors(logConfig.colors);
@@ -91,6 +95,8 @@ export function getLogger(name: string, ...options: unknown[]): Logger {
 
 const logger = getLogger("root");
 
-if (!process.stdout.isTTY) logger.warn("Output doesn't seem to be a TTY.  Several features have been disabled.");
+if (typeof process !== 'undefined' && process.stdout && !process.stdout.isTTY) {
+    logger.warn("Output doesn't seem to be a TTY.  Several features have been disabled.");
+}
 
 export default logger;
