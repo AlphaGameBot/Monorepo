@@ -4,12 +4,21 @@
 // https://opensource.org/licenses/MIT
 
 import client from "@/app/lib/database";
+import { getLogger } from "@/app/lib/logging/logger";
 import { NextResponse } from "next/server";
 
+const logger = getLogger("api/system-status");
+
 export async function GET() {
-    const ok = await client.$executeRaw`SELECT 1`.catch(() => null);
+    logger.debug("Checking system status");
+    const ok = await client.$executeRaw`SELECT 1`.catch((err) => {
+        logger.error("Database health check failed:", err);
+        return null;
+    });
     if (ok === null) {
+        logger.warn("System status degraded - database check failed");
         return NextResponse.json({ status: "degraded" });
     }
+    logger.debug("System status operational");
     return NextResponse.json({ status: "operational" });
 }
