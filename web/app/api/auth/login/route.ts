@@ -6,7 +6,7 @@ export async function GET() {
     const clientId = process.env.DISCORD_CLIENT_ID;
     const base = process.env.NEXT_PUBLIC_BASE_URL;
     const redirectUri = (base || '') + '/api/auth/callback';
-    const scope = encodeURIComponent('identify');
+    const scope = encodeURIComponent('identify guilds');
 
     if (!clientId || !process.env.NEXT_PUBLIC_BASE_URL) {
         return NextResponse.json({ error: 'OAuth not configured' }, { status: 500 });

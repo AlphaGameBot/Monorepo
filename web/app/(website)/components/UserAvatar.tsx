@@ -85,10 +85,10 @@ export default function UserAvatar({ className, showSignIn }: { className?: stri
                                     Sign out
                                 </a>
                                 <a
-                                    href="/profile"
+                                    href="/webapp"
                                     className="flex-1 text-center px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
                                 >
-                                    Profile
+                                    Dashboard
                                 </a>
                             </div>
                         </div>
