@@ -22,7 +22,7 @@ import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import { getAllPostRoutes, getPostWithNavigation } from '../../../../lib/posts';
+import { getAllPostRoutes, getPostWithNavigation } from '../../../../../lib/posts';
 
 type Props = {
     params: { year: string; month: string; slug: string };

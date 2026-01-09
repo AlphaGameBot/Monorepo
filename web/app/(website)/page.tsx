@@ -17,7 +17,7 @@
 //     along with AlphaGameBot.  If not, see <https://www.gnu.org/licenses/>.
 
 import HomeClient from "./components/HomeClient";
-import { getSortedPostsData } from "./lib/posts";
+import { getSortedPostsData } from "../lib/posts";
 
 export default function Home() {
     const posts = getSortedPostsData();

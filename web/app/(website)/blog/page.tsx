@@ -16,7 +16,7 @@
 //     You should have received a copy of the GNU General Public License
 //     along with AlphaGameBot.  If not, see <https://www.gnu.org/licenses/>.
 
-import { getSortedPostsData } from '../lib/posts';
+import { getSortedPostsData } from '../../lib/posts';
 import BlogPostsList from './components/BlogPostsList';
 
 export default function BlogPage() {
