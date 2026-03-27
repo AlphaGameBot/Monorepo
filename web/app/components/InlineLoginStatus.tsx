@@ -75,10 +75,10 @@ export default function InlineLoginStatus() {
 
                     <div className="flex flex-col gap-2">
                         <a
-                            href="/profile"
+                            href="/app/dashboard"
                             className="block w-full text-center px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
                         >
-                            View profile
+                            Dashboard
                         </a>
                         <a
                             href="/api/auth/logout"
